@@ -14,11 +14,11 @@ const userSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    addUser: (state, { payload }) => {
+    addUser: (state, { payload }: { payload: User }) => {
       state.users.push(payload);
     },
-    deleteUser: (state, { payload }) => {
-      state.users = state.users.filter((user) => user.id === payload);
+    deleteUser: (state, { payload }: { payload: string }) => {
+      state.users = state.users.filter((user) => user.id !== payload);
     },
     resetUsers: (state) => {
       state.users = [];
@@ -35,7 +35,7 @@ export const store = configureStore({
 });
 
 type RootState = ReturnType<typeof store.getState>;
-type Dispatch = typeof store.dispatch;
+type AppDispatch = typeof store.dispatch;
 
-export const useAppDispatch = useDispatch.withTypes<Dispatch>();
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppSelector = useSelector.withTypes<RootState>();
