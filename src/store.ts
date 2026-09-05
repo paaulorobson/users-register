@@ -1,18 +1,6 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  cpf: string;
-  cep: string;
-  address: string;
-  city: string;
-  uf: string;
-};
+import type { User } from "./types";
 
 type InitialState = {
   users: User[];
