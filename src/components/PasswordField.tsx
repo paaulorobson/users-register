@@ -45,7 +45,10 @@ function EyeOffIcon() {
   );
 }
 
-export function PasswordField({ id, label }: { id: string; label: string }) {
+export function PasswordField({
+  id,
+  label,
+}: Readonly<{ id: string; label: string }>) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   function handleClick() {
