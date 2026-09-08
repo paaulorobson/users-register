@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { InputHTMLAttributes } from "react";
 
 function EyeIcon() {
   return (
@@ -48,7 +49,10 @@ function EyeOffIcon() {
 export function PasswordField({
   id,
   label,
-}: Readonly<{ id: string; label: string }>) {
+  ...inputProps
+}: Readonly<
+  { id: string; label: string } & InputHTMLAttributes<HTMLInputElement>
+>) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   function handleClick() {
@@ -62,6 +66,7 @@ export function PasswordField({
       </label>
       <div className="relative">
         <input
+          {...inputProps}
           id={id}
           type={isPasswordVisible ? "text" : "password"}
           className="mt-1 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400' pr-10"

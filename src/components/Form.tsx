@@ -1,6 +1,6 @@
 import { withMask } from "use-mask-input";
 import { PasswordField } from "./PasswordField";
-import { useState } from "react";
+import { useForm, type FieldValues } from "react-hook-form";
 
 const inputClassName =
   "mt-1 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400";
@@ -8,15 +8,13 @@ const disabledInputClassName =
   "mt-1 w-full cursor-not-allowed rounded-md border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm text-zinc-500 outline-none";
 
 export function Form() {
-  const [address, setAddress] = useState({
-    city: "",
-    state: "",
-    street: "",
-    uf: "",
-  });
+  const { register, handleSubmit, setValue } = useForm();
+  const phoneRegistration = register("phone");
+  const cpfRegistration = register("cpf");
+  const cepRegistration = register("cep");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit = (data: FieldValues) => {
+    console.log(data);
     // Handle form submission logic here
   };
 
@@ -24,39 +22,52 @@ export function Form() {
     event: React.FocusEvent<HTMLInputElement>,
   ) => {
     const zipcode = event.target.value;
+
     const response = await fetch(
       `https://brasilapi.com.br/api/cep/v2/${zipcode}`,
     );
     if (response.ok) {
       const data = await response.json();
-      setAddress({
-        city: data.city,
-        state: data.state,
-        street: data.street,
-        uf: data.state,
-      });
+
+      setValue("address", data.street);
+      setValue("city", data.city);
+      setValue("uf", data.state);
     }
   };
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="fullName" className="text-sm font-medium text-zinc-700">
           Nome Completo
         </label>
-        <input id="fullName" type="text" className={inputClassName} />
+        <input
+          id="fullName"
+          type="text"
+          className={inputClassName}
+          {...register("fullName")}
+        />
       </div>
 
       <div>
         <label htmlFor="email" className="text-sm font-medium text-zinc-700">
           E-mail
         </label>
-        <input id="email" type="email" className={inputClassName} />
+        <input
+          id="email"
+          type="email"
+          className={inputClassName}
+          {...register("email")}
+        />
       </div>
 
-      <PasswordField id="password" label="Senha" />
+      <PasswordField id="password" label="Senha" {...register("password")} />
 
-      <PasswordField id="confirmPassword" label="Confirmar senha" />
+      <PasswordField
+        id="confirmPassword"
+        label="Confirmar senha"
+        {...register("confirmPassword")}
+      />
 
       <div>
         <label htmlFor="phone" className="text-sm font-medium text-zinc-700">
@@ -66,7 +77,11 @@ export function Form() {
           id="phone"
           type="tel"
           className={inputClassName}
-          ref={withMask("(99) 99999-9999")}
+          {...phoneRegistration}
+          ref={(element) => {
+            phoneRegistration.ref(element);
+            withMask("(99) 99999-9999")(element);
+          }}
         />
       </div>
 
@@ -78,7 +93,11 @@ export function Form() {
           id="cpf"
           type="text"
           className={inputClassName}
-          ref={withMask("999.999.999-99")}
+          {...cpfRegistration}
+          ref={(element) => {
+            cpfRegistration.ref(element);
+            withMask("999.999.999-99")(element);
+          }}
         />
       </div>
 
@@ -90,8 +109,15 @@ export function Form() {
           id="cep"
           type="text"
           className={inputClassName}
-          ref={withMask("99999-999")}
-          onBlur={handleZipcodeBlur}
+          {...cepRegistration}
+          onBlur={(event) => {
+            cepRegistration.onBlur(event);
+            handleZipcodeBlur(event);
+          }}
+          ref={(element) => {
+            cepRegistration.ref(element);
+            withMask("99999-999")(element);
+          }}
         />
       </div>
 
@@ -102,9 +128,9 @@ export function Form() {
         <input
           id="address"
           type="text"
-          disabled
+          readOnly
           className={disabledInputClassName}
-          value={address.street}
+          {...register("address")}
         />
       </div>
 
@@ -116,9 +142,9 @@ export function Form() {
           <input
             id="city"
             type="text"
-            disabled
+            readOnly
             className={disabledInputClassName}
-            value={address.city}
+            {...register("city")}
           />
         </div>
         <div>
@@ -128,9 +154,9 @@ export function Form() {
           <input
             id="uf"
             type="text"
-            disabled
+            readOnly
             className={disabledInputClassName}
-            value={address.uf}
+            {...register("uf")}
           />
         </div>
       </div>
@@ -143,6 +169,7 @@ export function Form() {
           id="terms"
           type="checkbox"
           className="size-4 rounded border-zinc-300"
+          {...register("terms")}
         />
         Aceito os termos e condições
       </label>
