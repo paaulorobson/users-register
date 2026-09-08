@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { withMask } from "use-mask-input";
 import { PasswordField } from "./PasswordField";
 import { useForm, type FieldValues } from "react-hook-form";
@@ -11,6 +12,8 @@ const disabledInputClassName =
   "mt-1 w-full cursor-not-allowed rounded-md border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm text-zinc-500 outline-none";
 
 export function Form() {
+  const [hasAddress, setHasAddress] = useState(false);
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -36,15 +39,25 @@ export function Form() {
   ) => {
     const zipcode = event.target.value;
 
-    const response = await fetch(
-      `https://brasilapi.com.br/api/cep/v2/${zipcode}`,
-    );
-    if (response.ok) {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://brasilapi.com.br/api/cep/v2/${zipcode}`,
+      );
+
+      if (!response.ok) {
+        setHasAddress(false);
+        return;
+      }
+
       const data = await response.json();
+      setHasAddress(true);
 
       setValue("address", data.street);
       setValue("city", data.city);
       setValue("uf", data.state);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,45 +170,57 @@ export function Form() {
         </p>
       </div>
 
-      <div>
-        <label htmlFor="address" className="text-sm font-medium text-zinc-700">
-          Endereço
-        </label>
-        <input
-          id="address"
-          type="text"
-          readOnly
-          className={disabledInputClassName}
-          {...register("address")}
-        />
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        <div className="col-span-2">
-          <label htmlFor="city" className="text-sm font-medium text-zinc-700">
-            Cidade
-          </label>
-          <input
-            id="city"
-            type="text"
-            readOnly
-            className={disabledInputClassName}
-            {...register("city")}
-          />
-        </div>
-        <div>
-          <label htmlFor="uf" className="text-sm font-medium text-zinc-700">
-            UF
-          </label>
-          <input
-            id="uf"
-            type="text"
-            readOnly
-            className={disabledInputClassName}
-            {...register("uf")}
-          />
-        </div>
-      </div>
+      {loading && (
+        <div className="text-sm text-zinc-700">Carregando endereço...</div>
+      )}
+      {hasAddress && (
+        <>
+          <div>
+            <label
+              htmlFor="address"
+              className="text-sm font-medium text-zinc-700"
+            >
+              Endereço
+            </label>
+            <input
+              id="address"
+              type="text"
+              readOnly
+              className={disabledInputClassName}
+              {...register("address")}
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label
+                htmlFor="city"
+                className="text-sm font-medium text-zinc-700"
+              >
+                Cidade
+              </label>
+              <input
+                id="city"
+                type="text"
+                readOnly
+                className={disabledInputClassName}
+                {...register("city")}
+              />
+            </div>
+            <div>
+              <label htmlFor="uf" className="text-sm font-medium text-zinc-700">
+                UF
+              </label>
+              <input
+                id="uf"
+                type="text"
+                readOnly
+                className={disabledInputClassName}
+                {...register("uf")}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       <label
         htmlFor="terms"
@@ -209,6 +234,9 @@ export function Form() {
         />{" "}
         Aceito os termos e condições
       </label>
+      <p className="mt-1 text-xs text-red-400">
+        <ErrorMessage errors={errors} name="terms" />
+      </p>
 
       <button
         type="submit"
