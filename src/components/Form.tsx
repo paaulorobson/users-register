@@ -1,6 +1,9 @@
 import { withMask } from "use-mask-input";
 import { PasswordField } from "./PasswordField";
 import { useForm, type FieldValues } from "react-hook-form";
+import { ErrorMessage } from "@hookform/error-message";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { userRegisterSchema, type UserRegisterSchema } from "../schema";
 
 const inputClassName =
   "mt-1 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400";
@@ -8,13 +11,23 @@ const disabledInputClassName =
   "mt-1 w-full cursor-not-allowed rounded-md border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm text-zinc-500 outline-none";
 
 export function Form() {
-  const { register, handleSubmit, setValue } = useForm();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<UserRegisterSchema>({
+    resolver: zodResolver(userRegisterSchema),
+  });
   const phoneRegistration = register("phone");
   const cpfRegistration = register("cpf");
   const cepRegistration = register("cep");
 
   const onSubmit = (data: FieldValues) => {
     console.log(data);
+    reset();
+
     // Handle form submission logic here
   };
 
@@ -47,6 +60,9 @@ export function Form() {
           className={inputClassName}
           {...register("fullName")}
         />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="fullName" />
+        </p>
       </div>
 
       <div>
@@ -59,15 +75,26 @@ export function Form() {
           className={inputClassName}
           {...register("email")}
         />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="email" />
+        </p>
       </div>
-
-      <PasswordField id="password" label="Senha" {...register("password")} />
-
-      <PasswordField
-        id="confirmPassword"
-        label="Confirmar senha"
-        {...register("confirmPassword")}
-      />
+      <div>
+        <PasswordField id="password" label="Senha" {...register("password")} />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="password" />
+        </p>
+      </div>
+      <div>
+        <PasswordField
+          id="confirmPassword"
+          label="Confirmar senha"
+          {...register("confirmPassword")}
+        />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="confirmPassword" />
+        </p>
+      </div>
 
       <div>
         <label htmlFor="phone" className="text-sm font-medium text-zinc-700">
@@ -83,6 +110,9 @@ export function Form() {
             withMask("(99) 99999-9999")(element);
           }}
         />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="phone" />
+        </p>
       </div>
 
       <div>
@@ -99,6 +129,9 @@ export function Form() {
             withMask("999.999.999-99")(element);
           }}
         />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="cpf" />
+        </p>
       </div>
 
       <div>
@@ -119,6 +152,9 @@ export function Form() {
             withMask("99999-999")(element);
           }}
         />
+        <p className="mt-1 text-xs text-red-400">
+          <ErrorMessage errors={errors} name="cep" />
+        </p>
       </div>
 
       <div>
@@ -170,7 +206,7 @@ export function Form() {
           type="checkbox"
           className="size-4 rounded border-zinc-300"
           {...register("terms")}
-        />
+        />{" "}
         Aceito os termos e condições
       </label>
 

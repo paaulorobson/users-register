@@ -60,7 +60,7 @@ export function PasswordField({
   }
 
   return (
-    <div>
+    <>
       <label htmlFor={id} className="text-sm font-medium text-zinc-700">
         {label}
       </label>
@@ -80,6 +80,6 @@ export function PasswordField({
           {isPasswordVisible ? <EyeIcon /> : <EyeOffIcon />}
         </button>
       </div>
-    </div>
+    </>
   );
 }
